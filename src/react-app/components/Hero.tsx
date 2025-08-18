@@ -24,15 +24,12 @@ export default function Hero() {
     
     if (position <= 0.33) {
       // Low cost: Green to Blue
-      const ratio = position / 0.33;
       return `linear-gradient(to right, rgb(34, 197, 94), rgb(59, 130, 246))`;
     } else if (position <= 0.66) {
       // Medium cost: Blue to Purple
-      const ratio = (position - 0.33) / 0.33;
       return `linear-gradient(to right, rgb(59, 130, 246), rgb(147, 51, 234))`;
     } else {
       // High cost: Purple to Red
-      const ratio = (position - 0.66) / 0.34;
       return `linear-gradient(to right, rgb(147, 51, 234), rgb(239, 68, 68))`;
     }
   };
