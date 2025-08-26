@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://medbridgeusa.com/sitemap.xml
+
+# Disallow admin/internal pages
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /dist/
+
+# Allow important pages
+Allow: /procedures/
+Allow: /blog/
+Allow: /hospitals/
+Allow: /cost-calculator/
+Allow: /testimonials/
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1

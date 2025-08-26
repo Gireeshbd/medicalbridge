@@ -5,7 +5,10 @@
       "Bash(npm run dev:*)",
       "Bash(npm install:*)",
       "Bash(npm run build:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(env)",
+      "Bash(npm search:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

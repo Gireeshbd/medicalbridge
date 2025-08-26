@@ -11,11 +11,54 @@ export default defineConfig({
     allowedHosts: true,
   },
   build: {
-    chunkSizeWarningLimit: 5000,
+    target: 'esnext',
+    minify: 'terser',
+    sourcemap: true,
+    chunkSizeWarningLimit: 1000, // Stricter size limits
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // Vendor chunk for React ecosystem
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor';
+            }
+            if (id.includes('lucide-react')) {
+              return 'ui-vendor';
+            }
+            if (id.includes('@calcom')) {
+              return 'cal-vendor';
+            }
+            return 'vendor';
+          }
+        },
+      },
+    },
+    // Terser options for better minification
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+      mangle: {
+        safari10: true,
+      },
+    },
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  // Optimize deps
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router',
+      'lucide-react',
+      '@calcom/embed-react',
+      'zod'
+    ],
   },
 });

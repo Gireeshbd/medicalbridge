@@ -1,6 +1,55 @@
-import { Calendar, ArrowRight, Clock } from 'lucide-react';
+import { Calendar, ArrowRight, Clock, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
 
 export default function BlogSection() {
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterState, setNewsletterState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [newsletterMessage, setNewsletterMessage] = useState('');
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+
+    setNewsletterState('loading');
+    setNewsletterMessage('');
+
+    try {
+      const response = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          email: newsletterEmail,
+          source: window.location.href 
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setNewsletterMessage(result.message || 'Failed to subscribe');
+        setNewsletterState('error');
+        return;
+      }
+
+      setNewsletterState('success');
+      setNewsletterMessage('Successfully subscribed! Check your email for confirmation.');
+      
+      // Reset after 3 seconds
+      setTimeout(() => {
+        setNewsletterEmail('');
+        setNewsletterState('idle');
+        setNewsletterMessage('');
+      }, 3000);
+
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      setNewsletterMessage('Network error. Please try again.');
+      setNewsletterState('error');
+    }
+  };
+
   const blogPosts = [
     {
       title: "Complete Guide to Cardiac Surgery in India: What US Patients Need to Know",
@@ -112,16 +161,49 @@ export default function BlogSection() {
           </div>
           
           <div className="max-w-md mx-auto">
-            <div className="flex gap-4">
+            {newsletterMessage && (
+              <div className={`mb-4 p-3 rounded-lg flex items-center text-sm ${
+                newsletterState === 'success' 
+                  ? 'bg-green-50 text-green-800 border border-green-200' 
+                  : 'bg-red-50 text-red-800 border border-red-200'
+              }`}>
+                {newsletterState === 'success' ? (
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 mr-2" />
+                )}
+                {newsletterMessage}
+              </div>
+            )}
+            
+            <form onSubmit={handleNewsletterSubmit} className="flex gap-4">
               <input 
                 type="email" 
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
                 placeholder="Enter your email address"
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+                disabled={newsletterState === 'loading' || newsletterState === 'success'}
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
               />
-              <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                Subscribe
+              <button 
+                type="submit"
+                disabled={newsletterState === 'loading' || newsletterState === 'success'}
+                className={`px-6 py-3 rounded-lg font-semibold transition-colors flex items-center ${
+                  newsletterState === 'loading'
+                    ? 'bg-blue-400 text-white cursor-not-allowed'
+                    : newsletterState === 'success'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
+              >
+                {newsletterState === 'loading' && (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                )}
+                {newsletterState === 'loading' ? 'Subscribing...' : 
+                 newsletterState === 'success' ? 'Subscribed!' : 'Subscribe'}
               </button>
-            </div>
+            </form>
             <p className="text-sm text-gray-500 mt-3 text-center">
               No spam, unsubscribe at any time.
             </p>
